@@ -206,10 +206,6 @@
         "headerParameters": {
           "parameters": [
             {
-              "name": "Authorization",
-              "value": "Bearer "
-            },
-            {
               "name": "Content-Type",
               "value": "application/json"
             }
@@ -291,10 +287,6 @@
         "headerParameters": {
           "parameters": [
             {
-              "name": "Authorization",
-              "value": "Bearer "
-            },
-            {
               "name": "Content-Type",
               "value": "application/json"
             }
@@ -356,10 +348,6 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            {
-              "name": "Authorization",
-              "value": "Bearer "
-            },
             {
               "name": "Content-Type",
               "value": "application/json"
