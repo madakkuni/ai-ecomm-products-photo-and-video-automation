@@ -1,0 +1,703 @@
+{
+  "name": "eComm Photo Shoot Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Uploader",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Image",
+              "fieldType": "file",
+              "acceptFileTypes": ".jpg, .png",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -816,
+        -64
+      ],
+      "id": "4abbaa74-89e4-4062-ab9b-c2e70effd29f",
+      "name": "File Uploader",
+      "webhookId": "6895e583-957a-4321-b814-b42590c68a7e"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "binaryPropertyName": "=Image",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -576,
+        -64
+      ],
+      "id": "84e0dc7b-403b-4c62-a2cb-571b3b47696a",
+      "name": "Convert to Base64"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "image_result",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        400,
+        -64
+      ],
+      "id": "7486b440-a0a3-4db0-98ad-a09752c82ff2",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "name": "={{ 'image_' + String($itemIndex + 1).padStart(3, '0') + '.png' }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1FEbd9F-e1BqsiAEpz7U-55iX4Qlri6Ao",
+          "mode": "list",
+          "cachedResultName": "eComm_Images",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1FEbd9F-e1BqsiAEpz7U-55iX4Qlri6Ao"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1056,
+        0
+      ],
+      "id": "d3426e53-c4be-4ba2-ab4f-c17fa991a418",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "yx6NzI5htQcs2IjT",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f7e5d381-2de4-4546-949f-16b690538c82",
+              "name": "new_image_result",
+              "value": "={{ $json.candidates[0].content.parts.filter(item => item.inlineData).first().inlineData.data }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        320,
+        704
+      ],
+      "id": "634303f9-5080-4a7c-8914-67c239d719a6",
+      "name": "set_result_image"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9bb24997-c505-424a-82a3-505fe1633ff2",
+              "leftValue": "={{ $json.new_image_result }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        560,
+        704
+      ],
+      "id": "f686a94c-83fb-400f-b0c7-138421b4e424",
+      "name": "check_success"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "new_image_result",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        704
+      ],
+      "id": "47ca3346-09bc-48fa-b841-99eb38ceeb95",
+      "name": "get_result_image"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -832,
+        448
+      ],
+      "id": "0b35e013-5dbf-406d-b871-537ca9894d3f",
+      "name": "iterate_prompts"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5ecd2326-f6e6-4be3-9609-b7f5c575c07b",
+              "name": "Prompt",
+              "value": "=Create an ultra-realistic fashion studio photograph using the provided clothing item. The output must be a full-body image of a real human model wearing the exact garment from the input image.\n\nGARMENT PRIORITY (STRICT — NON-NEGOTIABLE)\n- The clothing item provided in the input image MUST be used exactly.\n- Treat the input image as a fixed product reference, not a suggestion.\n- The model MUST wear the same garment with identical:\n  - color\n  - fabric texture\n  - stitching details\n  - shape and fit\n- Do NOT redesign, reinterpret, enhance, or approximate the garment.\n- Do NOT replace the garment with similar clothing.\n- Example: If shorts are provided, the model MUST wear those exact shorts (NOT pants, NOT different shorts).\n- The garment must remain the primary subject and be clearly visible.\n\nMODEL\n- Choose a natural-looking human model (male or female based on clothing type)\n- Realistic skin texture with visible pores and subtle imperfections\n- Slight natural asymmetry (avoid overly perfect or CGI look)\n- Natural, confident expression\n- Must not resemble any real person\n\nSTYLING\n- Preserve the garment exactly as provided\n- If additional clothing is required:\n  - Add ONLY complementary items that do NOT interfere with or alter the garment\n  - Example:\n    - Shorts → add neutral t-shirt/shirt only\n    - Shirt → add pants\n- Do NOT cover, distort, or hide the garment\n- Keep styling minimal and realistic\n\nCOLOR CONTROL\n- Do NOT change the color of the provided garment\n- Other outfit pieces must use different but coordinated colors\n- Use clean, modern, fashion-appropriate color combinations\n\nPOSE\n- Natural, relaxed pose (not stiff, not A-pose)\n- Slight body angle and weight shift\n- Casual stance (e.g., one hand in pocket, slight movement)\n- Ensure the garment remains fully visible in the pose\n\nCOMPOSITION & ENVIRONMENT\n- Full-body shot\n- Studio setup with neutral gray background\n- Soft lighting with natural shadows\n- No distractions from the garment\n\nREALISM\n- Photographic quality (not CGI)\n- Natural fabric folds and wrinkles\n- Realistic lighting and depth\n- Subtle imperfections for realism\n\nRULES\n- Do NOT generate a generic outfit\n- Do NOT modify the garment in any way\n- Do NOT hallucinate new design elements\n- No logos, text, or watermarks\n- Safe-for-work\n\nFINAL REQUIREMENT\nThe output must look like a real photograph of a model wearing the exact same product from the input image, with no visible differences in design, color, or texture.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -336,
+        -64
+      ],
+      "id": "95e56203-9af8-40c7-b87f-345d1a7439ce",
+      "name": "Set Prompt for Model"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://us-central1-aiplatform.googleapis.com/v1/projects/project-a7690af0-0029-4a10-813/locations/us-central1/publishers/google/models/gemini-2.5-flash-image:generateContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer ya29.a0AQvPyIM7P32kcQ_Ot079SkmO27o-ZiRnuK422LQ7kRl-WIVyjkLTsC92wo112PdNLqne6bt94ekCsGCOHrMofJN75UUgcbLw7jcD4cOrbDbg7wIuf0GAGnzPk5wefDkm2P1HqimRsxJyvlRXk1Caw8VQALvbKsdymXNzRD9er20ol7jMquaOF2Ej9VmsYd0Wo7bsE9CECGbDVbHLULW_uaq1fLqGkLkBl4IeYNys3490UM2qAna42shBKWdZ4_aB21Bn89BRgqM96HqhtiH1H42AHW71kqYGA1_j42PCog7pr4Sqoo-sZjpLfYekuUA3ghMTTTTQ7ToieKTStlYzJEiyy-YX67rT9_oAaCgYKAccSARESFQHGX2Mii4JBREURlR8xbZsFrjDgjQ0363"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": {{ JSON.stringify($json.Prompt) }}\n        },\n        {\n          \"inlineData\": {\n            \"mimeType\": \"image/png\",\n            \"data\": \"{{$node['Convert to Base64'].json.data}}\"\n          }\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"candidateCount\": 1\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -112,
+        -64
+      ],
+      "id": "d605fa68-05d1-421c-9dd2-db607d3c62fc",
+      "name": "Generate Model",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "NRrCgRWg0ft7CAtl",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "86e760b9-01b5-49e2-ba8a-6de9c7f4e2f9",
+              "name": "image_result",
+              "value": "={{ $json.candidates[0].content.parts[0].inlineData.data }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        160,
+        -64
+      ],
+      "id": "3f218f17-b6d9-4d4c-baef-0f15f5e4ecc8",
+      "name": "Set Model"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2c2bbb98-c6e4-4339-971a-2d6487f6bd29",
+              "name": "prompt",
+              "value": "=**ROLE:** You are a world-class e-commerce creative director and an expert prompt engineer. You specialize in creating prompts for AI image generators that leverage direct image-to-image referencing for character and object consistency.\n\n**TASK:** Your goal is to generate 10 distinct, detailed, and high-quality image prompts. The first four will be standard studio shots. The final four will be **dynamically generated lifestyle scenarios** that you determine are the most compelling and appropriate marketing contexts for the specific clothing article provided. Your prompts should **not** describe the model or the clothing; instead, they must focus entirely on the composition, pose, lighting, and setting. Please include details and pay attention to details like the gender of the model and what type of article of clothing is being featured.\n\n**INPUTS:**\n\n1.  **[Image 1: The Clothing Article]** This image will be used as the primary product reference in the final image generator.\n2.  **[Image 2: The Model Shot]** This image will be used as the primary model/character reference in the final image generator.\n\n**PROCESS:**\n\n1.  **Deep Contextual Analysis:** From [Image 1], perform a deep analysis to understand the clothing's essence. Determine its primary function (e.g., professional wear, athletic gear, formal attire, casual comfort), target lifestyle (e.g., urban professional, outdoor adventurer, socialite), and the core feeling it should evoke (e.g., confidence, comfort, elegance, ruggedness). This analysis is critical for the next step.\n2.  **Generate Prompts:** Based on your analysis, generate the 8 prompts below. Assume the image generator is already referencing [Image 1] for the product and [Image 2] for the model. Focus exclusively on the new scene's details.\n\n**OUTPUT FORMAT:**\n\n---\n\n### **Part 1: Core E-commerce Studio Shots**\n\n*Generate 4 prompts for standard e-commerce studio shots. These must clearly instruct the composition and pose against a neutral background.*\n\n**Prompt 1: Full-Length Front View**\n*Instruct a classic, full-length shot of the model wearing the referenced product, facing the camera.*\n\n**Prompt 2: Three-Quarter View**\n*Instruct a shot from an angle to showcase the garment's silhouette and fit.*\n\n**Prompt 3: Full-Length Back View**\n*Instruct a shot to display the back details and fit of the referenced garment.*\n\n**Prompt 4: Detail/Texture Close-Up**\n*Instruct a close-up shot that highlights a key feature or the material's texture of the referenced product.*\n\n---\n\n### **Part 2: Dynamic & Relevant Lifestyle Shots**\n\n*Based on your deep analysis, generate 4 distinct and compelling lifestyle prompts. For each prompt, create a unique, descriptive title that encapsulates the scene you are creating. These scenes must be the most appropriate and marketable contexts for the specific article of clothing.*\n\n**Prompt 5: [Generated Descriptive Title]**\n*Create the first and most impactful lifestyle scene for the referenced product.*\n\n**Prompt 6: [Generated Descriptive Title]**\n*Create a second, different lifestyle scene that highlights another facet of the product's use or appeal.*\n\n**Prompt 7: [Generated Descriptive Title]**\n*Create a third lifestyle scene, perhaps focusing on a specific time of day or a different mood.*\n\n**Prompt 8: [Generated Descriptive Title]**\n*Create a fourth, unique lifestyle scene that tells a compelling story about the person who wears this product.*\n\n---",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -816,
+        192
+      ],
+      "id": "7ef36da2-e67d-4750-ae14-0584dfe60cc7",
+      "name": "Set Meta Prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://us-central1-aiplatform.googleapis.com/v1/projects/project-a7690af0-0029-4a10-813/locations/us-central1/publishers/google/models/gemini-2.5-pro:generateContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer ya29.a0AQvPyIM7P32kcQ_Ot079SkmO27o-ZiRnuK422LQ7kRl-WIVyjkLTsC92wo112PdNLqne6bt94ekCsGCOHrMofJN75UUgcbLw7jcD4cOrbDbg7wIuf0GAGnzPk5wefDkm2P1HqimRsxJyvlRXk1Caw8VQALvbKsdymXNzRD9er20ol7jMquaOF2Ej9VmsYd0Wo7bsE9CECGbDVbHLULW_uaq1fLqGkLkBl4IeYNys3490UM2qAna42shBKWdZ4_aB21Bn89BRgqM96HqhtiH1H42AHW71kqYGA1_j42PCog7pr4Sqoo-sZjpLfYekuUA3ghMTTTTQ7ToieKTStlYzJEiyy-YX67rT9_oAaCgYKAccSARESFQHGX2Mii4JBREURlR8xbZsFrjDgjQ0363"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"{{$json.prompt.replace(/[\\n\\r\\t]/g, ' ').replace(/\\\"/g, '\\\\\\\"')}}\"\n        },\n        {\n          \"inlineData\": {\n            \"mimeType\": \"image/png\",\n            \"data\": \"{{$node['Convert to Base64'].json.data}}\"\n          }\n        },\n        {\n          \"inlineData\": {\n            \"mimeType\": \"image/jpeg\",\n            \"data\": \"{{$node['Set Model'].json.image_result}}\"\n          }\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -576,
+        192
+      ],
+      "id": "7c9f0545-54dc-4691-ad1f-10c476ce92e3",
+      "name": "Generate Prompts",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "NRrCgRWg0ft7CAtl",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $input.first()?.json?.candidates?.[0]?.content?.parts?.[0]?.text || \"\";\n\nif (!text) {\n  return [{ prompts: [] }];\n}\n\n// Normalize\nconst clean = text.replace(/\\r/g, '');\n\n// Strategy 1: Strong pattern\nlet prompts = [...clean.matchAll(/\\*\\*Prompt\\s*\\d+:[^\\n]*\\*\\*\\s*([\\s\\S]*?)(?=\\n\\s*\\*\\*Prompt\\s*\\d+:|\\n---|$)/gi)]\n  .map(m => m[1].trim());\n\n// Strategy 2: Fallback\nif (prompts.length === 0) {\n  prompts = clean.split(/Prompt\\s*\\d+:/i)\n    .map(p => p.trim())\n    .filter(p => p.length > 50);\n}\n\n// Strategy 3: Hard fallback\nif (prompts.length === 0) {\n  prompts = clean.split(/\\n\\n+/)\n    .map(p => p.trim())\n    .filter(p => p.length > 80);\n}\n\n// Final cleanup\nprompts = prompts.map(p =>\n  p.replace(/\\n+/g, ' ').trim()\n);\n\n// Optional: limit to 8 prompts\nprompts = prompts.slice(0, 8);\n\nreturn [{ prompts }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -336,
+        192
+      ],
+      "id": "31c2146f-ad4b-42c7-bbc0-f7ee592e16c1",
+      "name": "Clean Prompts"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "prompts",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        192
+      ],
+      "id": "ba9fa642-6b1d-4a53-8b61-805e3e89a883",
+      "name": "Split Prompts"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://us-central1-aiplatform.googleapis.com/v1/projects/project-a7690af0-0029-4a10-813/locations/us-central1/publishers/google/models/gemini-2.5-flash-image:generateContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer ya29.a0AQvPyIM7P32kcQ_Ot079SkmO27o-ZiRnuK422LQ7kRl-WIVyjkLTsC92wo112PdNLqne6bt94ekCsGCOHrMofJN75UUgcbLw7jcD4cOrbDbg7wIuf0GAGnzPk5wefDkm2P1HqimRsxJyvlRXk1Caw8VQALvbKsdymXNzRD9er20ol7jMquaOF2Ej9VmsYd0Wo7bsE9CECGbDVbHLULW_uaq1fLqGkLkBl4IeYNys3490UM2qAna42shBKWdZ4_aB21Bn89BRgqM96HqhtiH1H42AHW71kqYGA1_j42PCog7pr4Sqoo-sZjpLfYekuUA3ghMTTTTQ7ToieKTStlYzJEiyy-YX67rT9_oAaCgYKAccSARESFQHGX2Mii4JBREURlR8xbZsFrjDgjQ0363"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"Generate a photo-realistic image using the provided model image and the provided article of clothing. {{$json.prompt}}\"\n        },\n        {\n          \"inlineData\": {\n            \"mimeType\": \"image/png\",\n            \"data\": \"{{$item(0).$node['Convert to Base64'].json.data}}\"\n          }\n        },\n        {\n          \"inlineData\": {\n            \"mimeType\": \"image/jpeg\",\n            \"data\": \"{{$item(0).$node['Set Model'].json.image_result}}\"\n          }\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -192,
+        704
+      ],
+      "id": "086742b1-1b90-454d-9a43-3c2b70f22148",
+      "name": "Generate Model Image",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "NRrCgRWg0ft7CAtl",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -416,
+        704
+      ],
+      "id": "865d0248-f739-4a3d-882f-f8e9f0adfd01",
+      "name": "Wait-1",
+      "webhookId": "a18037ee-1ca6-4b9a-bf22-85e244843ade"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        64,
+        704
+      ],
+      "id": "e22680e6-2e62-4641-b6d5-9c4f2663c551",
+      "name": "Wait-2",
+      "webhookId": "20896005-e3e9-4b13-ae9b-96edfeec8f56"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// This ensures you are grabbing the 'prompts' field \n// from the incoming item and returning it correctly.\nreturn {\n  prompt: $json.prompts\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -640,
+        704
+      ],
+      "id": "5a5d2228-13f7-41d3-b0f5-1ca84685a1f9",
+      "name": "Prepare Prompt",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "name": "={{ \n  'image_' + \n  new Date().toISOString().replace(/[-:]/g,'').slice(0,15).replace('T','_') + \n  '.png' \n}}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1FEbd9F-e1BqsiAEpz7U-55iX4Qlri6Ao",
+          "mode": "list",
+          "cachedResultName": "eComm_Images",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1FEbd9F-e1BqsiAEpz7U-55iX4Qlri6Ao"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1024,
+        816
+      ],
+      "id": "3182c51e-ef82-4f88-adc0-7a447fd40291",
+      "name": "Upload File to Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "yx6NzI5htQcs2IjT",
+          "name": "Google Drive account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "File Uploader": {
+      "main": [
+        [
+          {
+            "node": "Convert to Base64",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to Base64": {
+      "main": [
+        [
+          {
+            "node": "Set Prompt for Model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Set Meta Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        []
+      ]
+    },
+    "set_result_image": {
+      "main": [
+        [
+          {
+            "node": "check_success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check_success": {
+      "main": [
+        [
+          {
+            "node": "get_result_image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait-1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_result_image": {
+      "main": [
+        [
+          {
+            "node": "Upload File to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "iterate_prompts": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Prepare Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Prompt for Model": {
+      "main": [
+        [
+          {
+            "node": "Generate Model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Model": {
+      "main": [
+        [
+          {
+            "node": "Set Model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Model": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Meta Prompt": {
+      "main": [
+        [
+          {
+            "node": "Generate Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Prompts": {
+      "main": [
+        [
+          {
+            "node": "Clean Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Prompts": {
+      "main": [
+        [
+          {
+            "node": "Split Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Prompts": {
+      "main": [
+        [
+          {
+            "node": "iterate_prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Model Image": {
+      "main": [
+        [
+          {
+            "node": "Wait-2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait-1": {
+      "main": [
+        [
+          {
+            "node": "Generate Model Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait-2": {
+      "main": [
+        [
+          {
+            "node": "set_result_image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Prompt": {
+      "main": [
+        [
+          {
+            "node": "Wait-1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload File to Drive": {
+      "main": [
+        [
+          {
+            "node": "iterate_prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "0bf995e3-9bfd-4368-8b2d-a4bb252e53fb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2142ad2c9bccd32e0872a5b3fac8775cf782848a231f3c4512da47c4343e8953"
+  },
+  "id": "cUI7Vr043Wkub5u9",
+  "tags": []
+}

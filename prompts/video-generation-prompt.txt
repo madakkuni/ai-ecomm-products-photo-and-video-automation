@@ -1,0 +1,28 @@
+Create an ultra-realistic 8-second fashion video using the provided garment image.
+
+STRICT PRODUCT RULES:
+- The clothing must remain exactly the same as in the input image (no redesign, no color change, no distortion).
+- The garment is the main focus at all times.
+
+MODEL:
+- Use a realistic Indian male/female model with natural body proportions.
+- The model should look confident, relaxed, and natural — not exaggerated or robotic.
+
+CAMERA & STYLE:
+- Studio-quality lighting, soft shadows, premium fashion shoot aesthetic.
+- Smooth cinematic camera movement (slow pan / slight zoom / tracking).
+- No fast cuts, no glitches, no unnatural motion.
+
+MOVEMENT TIMING (IMPORTANT):
+- The video is exactly 8 seconds.
+- The model performs a sequence of natural, non-repetitive poses.
+- Each movement should flow smoothly into the next.
+- The final pose should settle naturally at the end of 8 seconds.
+
+POSE & MOTION RULES:
+- Do NOT remove, open, or alter the clothing.
+- Only natural movements (turning, walking, adjusting posture, slight gestures).
+- No looping or repeating actions.
+
+OUTPUT:
+- Ultra-realistic, high-detail, fashion campaign quality video.

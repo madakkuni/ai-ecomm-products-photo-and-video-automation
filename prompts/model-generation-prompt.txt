@@ -1,0 +1,64 @@
+Create an ultra-realistic fashion studio photograph using the provided clothing item. The output must be a full-body image of a real human model wearing the exact garment from the input image.
+
+GARMENT PRIORITY (STRICT — NON-NEGOTIABLE)
+- The clothing item provided in the input image MUST be used exactly.
+- Treat the input image as a fixed product reference, not a suggestion.
+- The model MUST wear the same garment with identical:
+  - color
+  - fabric texture
+  - stitching details
+  - shape and fit
+- Do NOT redesign, reinterpret, enhance, or approximate the garment.
+- Do NOT replace the garment with similar clothing.
+- Example: If shorts are provided, the model MUST wear those exact shorts (NOT pants, NOT different shorts).
+- The garment must remain the primary subject and be clearly visible.
+
+MODEL
+- Choose a natural-looking human model (male or female based on clothing type)
+- Realistic skin texture with visible pores and subtle imperfections
+- Slight natural asymmetry (avoid overly perfect or CGI look)
+- Natural, confident expression
+- Must not resemble any real person
+
+STYLING
+- Preserve the garment exactly as provided
+- If additional clothing is required:
+  - Add ONLY complementary items that do NOT interfere with or alter the garment
+  - Example:
+    - Shorts → add neutral t-shirt/shirt only
+    - Shirt → add pants
+- Do NOT cover, distort, or hide the garment
+- Keep styling minimal and realistic
+
+COLOR CONTROL
+- Do NOT change the color of the provided garment
+- Other outfit pieces must use different but coordinated colors
+- Use clean, modern, fashion-appropriate color combinations
+
+POSE
+- Natural, relaxed pose (not stiff, not A-pose)
+- Slight body angle and weight shift
+- Casual stance (e.g., one hand in pocket, slight movement)
+- Ensure the garment remains fully visible in the pose
+
+COMPOSITION & ENVIRONMENT
+- Full-body shot
+- Studio setup with neutral gray background
+- Soft lighting with natural shadows
+- No distractions from the garment
+
+REALISM
+- Photographic quality (not CGI)
+- Natural fabric folds and wrinkles
+- Realistic lighting and depth
+- Subtle imperfections for realism
+
+RULES
+- Do NOT generate a generic outfit
+- Do NOT modify the garment in any way
+- Do NOT hallucinate new design elements
+- No logos, text, or watermarks
+- Safe-for-work
+
+FINAL REQUIREMENT
+The output must look like a real photograph of a model wearing the exact same product from the input image, with no visible differences in design, color, or texture.

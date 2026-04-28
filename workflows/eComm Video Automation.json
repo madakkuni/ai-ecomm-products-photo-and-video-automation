@@ -1,0 +1,370 @@
+{
+  "name": "eComm Video Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -160,
+        -2448
+      ],
+      "id": "4494fc37-7df0-4a74-95df-80298735d357",
+      "name": "wait2",
+      "webhookId": "c68c0f13-ed52-4cc2-86f0-a795b67f6b31"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d978d0ad-9e4b-49ad-8992-40ab64744d1e",
+              "leftValue": "={{ $json.response }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        464,
+        -2432
+      ],
+      "id": "85e23fc4-cbed-4773-b2f0-ef76cc0f7fd5",
+      "name": "check_response"
+    },
+    {
+      "parameters": {
+        "name": "=Output Video #{{ $runIndex + 1 }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1FEbd9F-e1BqsiAEpz7U-55iX4Qlri6Ao",
+          "mode": "list",
+          "cachedResultName": "eComm_Images",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1FEbd9F-e1BqsiAEpz7U-55iX4Qlri6Ao"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        976,
+        -2400
+      ],
+      "id": "5e51085b-3e13-4206-b619-64b2c6861022",
+      "name": "upload_output_video",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "yx6NzI5htQcs2IjT",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://us-central1-aiplatform.googleapis.com/v1/projects/project-a7690af0-0029-4a10-813/locations/us-central1/publishers/google/models/veo-3.1-generate-001:predictLongRunning",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"instances\": [\n    {\n      \"prompt\": {{ JSON.stringify($node['set_prompt'].json.prompt) }},\n      \"image\": {\n        \"mimeType\": \"image/png\",\n        \"bytesBase64Encoded\": \"{{ $('convert_to_base').item.json.data }}\"\n      },\n      \"lastFrame\": {\n        \"mimeType\": \"image/png\",\n        \"bytesBase64Encoded\": \"{{ $('convert_to_base').item.json.data }}\"\n      }\n    }\n  ],\n  \"parameters\": {\n    \"durationSeconds\": 8,\n    \"aspectRatio\": \"9:16\",\n    \"personGeneration\": \"allow_adult\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -368,
+        -2448
+      ],
+      "id": "c51f3552-fbf4-4af8-9f47-bcdddc1a7062",
+      "name": "Generate Video",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "NRrCgRWg0ft7CAtl",
+          "name": "Header Auth account"
+        },
+        "googleOAuth2Api": {
+          "id": "CnWxOU4JQzqcjBJ1",
+          "name": "Google account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "05043e09-0e28-4052-9172-3af905370437",
+              "name": "prompt",
+              "value": "Create an ultra-realistic 8-second fashion video using the provided garment image.\n\nSTRICT PRODUCT RULES:\n- The clothing must remain exactly the same as in the input image (no redesign, no color change, no distortion).\n- The garment is the main focus at all times.\n\nMODEL:\n- Use a realistic Indian male/female model with natural body proportions.\n- The model should look confident, relaxed, and natural — not exaggerated or robotic.\n\nCAMERA & STYLE:\n- Studio-quality lighting, soft shadows, premium fashion shoot aesthetic.\n- Smooth cinematic camera movement (slow pan / slight zoom / tracking).\n- No fast cuts, no glitches, no unnatural motion.\n\nMOVEMENT TIMING (IMPORTANT):\n- The video is exactly 8 seconds.\n- The model performs a sequence of natural, non-repetitive poses.\n- Each movement should flow smoothly into the next.\n- The final pose should settle naturally at the end of 8 seconds.\n\nPOSE & MOTION RULES:\n- Do NOT remove, open, or alter the clothing.\n- Only natural movements (turning, walking, adjusting posture, slight gestures).\n- No looping or repeating actions.\n\nOUTPUT:\n- Ultra-realistic, high-detail, fashion campaign quality video.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -560,
+        -2448
+      ],
+      "id": "820f3305-a61d-42c0-abc3-4ce8cd8eb7f9",
+      "name": "set_prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://us-central1-aiplatform.googleapis.com/v1/projects/project-a7690af0-0029-4a10-813/locations/us-central1/publishers/google/models/veo-3.1-generate-001:fetchPredictOperation",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"operationName\": \"{{ $node['Generate Video'].json['name'] }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        64,
+        -2448
+      ],
+      "id": "09b8925e-ba6f-495c-9ffe-e29e5e12135e",
+      "name": "Fetch status",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "NRrCgRWg0ft7CAtl",
+          "name": "Header Auth account"
+        },
+        "googleOAuth2Api": {
+          "id": "CnWxOU4JQzqcjBJ1",
+          "name": "Google account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        256,
+        -2432
+      ],
+      "id": "0a746a33-8f95-43a1-b041-65c05b2cee31",
+      "name": "wait3",
+      "webhookId": "c68c0f13-ed52-4cc2-86f0-a795b67f6b31"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "response.videos[0].bytesBase64Encoded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        736,
+        -2432
+      ],
+      "id": "5238c3e1-6209-4144-b847-8156cb19fea7",
+      "name": "Convert to Video"
+    },
+    {
+      "parameters": {
+        "formTitle": "Uploader",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Image",
+              "fieldType": "file",
+              "acceptFileTypes": ".jpg, .png",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -896,
+        -2448
+      ],
+      "id": "8da4edbc-5989-4ca1-ac38-05290d18c605",
+      "name": "file_uploader1",
+      "webhookId": "621f1ec2-0346-4bd8-baae-6c6c66d23303"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "binaryPropertyName": "=Image",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -720,
+        -2448
+      ],
+      "id": "20039cc0-2370-4f0a-a39e-30d1cdcb7e2b",
+      "name": "convert_to_base"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "wait2": {
+      "main": [
+        [
+          {
+            "node": "Fetch status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check_response": {
+      "main": [
+        [
+          {
+            "node": "Convert to Video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Video": {
+      "main": [
+        [
+          {
+            "node": "wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_prompt": {
+      "main": [
+        [
+          {
+            "node": "Generate Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch status": {
+      "main": [
+        [
+          {
+            "node": "wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "wait3": {
+      "main": [
+        [
+          {
+            "node": "check_response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to Video": {
+      "main": [
+        [
+          {
+            "node": "upload_output_video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "file_uploader1": {
+      "main": [
+        [
+          {
+            "node": "convert_to_base",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "convert_to_base": {
+      "main": [
+        [
+          {
+            "node": "set_prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "a6ec3ec9-3107-40bc-91c1-80b7ae692ec1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2142ad2c9bccd32e0872a5b3fac8775cf782848a231f3c4512da47c4343e8953"
+  },
+  "id": "Aii11RN4GMbPqO8X",
+  "tags": []
+}

@@ -1,0 +1,11 @@
+meta-prompt : https://us-central1-aiplatform.googleapis.com/v1/projects/project-a7690af0-0029-4a10-813/locations/us-central1/publishers/google/models/gemini-2.5-pro:generateContent
+
+model-generation : https://us-central1-aiplatform.googleapis.com/v1/projects/project-a7690af0-0029-4a10-813/locations/us-central1/publishers/google/models/gemini-2.5-flash-image:generateContent
+
+multiple-photo-generation : https://us-central1-aiplatform.googleapis.com/v1/projects/project-a7690af0-0029-4a10-813/locations/us-central1/publishers/google/models/gemini-2.5-flash-image:generateContent
+
+video-generation : https://us-central1-aiplatform.googleapis.com/v1/projects/project-a7690af0-0029-4a10-813/locations/us-central1/publishers/google/models/veo-3.1-generate-001:predictLongRunning
+
+video-generation-status-check : https://us-central1-aiplatform.googleapis.com/v1/projects/project-a7690af0-0029-4a10-813/locations/us-central1/publishers/google/models/veo-3.1-generate-001:fetchPredictOperation
+
+
