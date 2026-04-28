@@ -121,7 +121,7 @@ Extends static images into **short cinematic videos**.
 
 **What it does:**
 
-* Generates 8–10 second model videos
+* Generates 8 second model videos
 * Adds natural human motion (posing, turning)
 * Simulates camera movement (pan, zoom)
 * Maintains garment consistency
@@ -149,33 +149,6 @@ Extends static images into **short cinematic videos**.
 * Marketplace sellers (Amazon, Shopify)
 * Social media content (Reels, Ads)
 * Automated marketing pipelines
-
----
-
-## 📂 Project Structure
-
-```bash
-ecom-ai-photoshoot/
-│
-├── workflows/
-│   ├── image-generation.json
-│   ├── video-generation-veo.json
-│   └── master-pipeline.json
-│
-├── prompts/
-│   ├── meta-prompts/
-│   ├── image-prompts/
-│   └── video-prompts/
-│
-├── config/
-├── scripts/
-├── samples/
-├── docs/
-├── assets/
-│
-├── README.md
-└── LICENSE
-```
 
 ---
 
@@ -215,7 +188,10 @@ ecom-ai-photoshoot/
 
 ## 🎬 Demo
 
-(Add demo video / GIF here)
+
+
+
+
 
 ---
 
